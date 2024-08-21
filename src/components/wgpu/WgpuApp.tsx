@@ -3,7 +3,7 @@ import { App } from "shaderx-wgpu";
 import { useWgpu } from "../../context";
 import { ITextureSize } from "../../utils/types";
 import { getMaxDimension2D } from "shaderx-wgpu";
-import MonacoEditor from "react-monaco-editor";
+import { Editor } from "@monaco-editor/react";
 
 type WgpuAppProps = {};
 
@@ -60,14 +60,14 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
   }, [initialized]);
 
   const onChange = useCallback(
-    (newValue: string) => {
+    (newValue: string | undefined) => {
+      if (!newValue) return;
       setShaderCode(newValue);
     },
     [setShaderCode],
   );
 
   const onRecompile = useCallback(() => {
-    console.error("wgpuApp.current", wgpuApp.current);
     wgpuApp.current?.updateShader(shaderCode);
   }, [shaderCode]);
 
@@ -87,17 +87,13 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
           maxHeight: maxSize.height,
         }}
       />
-      <MonacoEditor
-        width="100%"
+      <Editor
         height="100%"
-        language="wgsl"
+        width="100%"
+        defaultLanguage="wgsl"
         theme="vs-dark"
+        defaultValue={defaultShaderCode}
         value={shaderCode}
-        options={{
-          minimap: { enabled: false },
-          language: "wgsl",
-          automaticLayout: true,
-        }}
         onChange={onChange}
       />
     </div>
