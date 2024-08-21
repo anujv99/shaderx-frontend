@@ -1,10 +1,33 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useCallback, useEffect, useId, useRef, useState } from "react";
 import { App } from "shaderx-wgpu";
 import { useWgpu } from "../../context";
 import { ITextureSize } from "../../utils/types";
 import { getMaxDimension2D } from "shaderx-wgpu";
+import MonacoEditor from "react-monaco-editor";
 
 type WgpuAppProps = {};
+
+const defaultShaderCode = `
+struct VertexOutput {
+  @builtin(position) clip_position: vec4<f32>,
+};
+
+@vertex
+fn vs_main(
+  @builtin(vertex_index) index: u32,
+) -> VertexOutput {
+  var output: VertexOutput;
+  let x = f32(1 - i32(index)) * 0.5;
+  let y = f32(i32(index & 1u) * 2 - 1) * 0.5;
+  output.clip_position = vec4<f32>(x, y, 0.0, 1.0);
+  return output;
+}
+
+@fragment
+fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
+  return vec4<f32>(1.0, 1.0, 0.0, 1.0);
+}
+`;
 
 const WgpuApp: React.FC<WgpuAppProps> = () => {
   const { initialized } = useWgpu();
@@ -13,14 +36,16 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
     width: 0,
     height: 0,
   });
+  const [shaderCode, setShaderCode] = useState<string>(defaultShaderCode);
 
   const wgpuApp = useRef<App | null>(null);
   const id = useId();
 
   useEffect(() => {
     if (initialized) {
-      wgpuApp.current = new App({
-        containerId: id,
+      // @ts-ignore
+      new App({ containerId: id }).then((app: App) => {
+        wgpuApp.current = app;
       });
       const maxSize = getMaxDimension2D();
       setMaxSize({
@@ -34,15 +59,48 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
     };
   }, [initialized]);
 
+  const onChange = useCallback(
+    (newValue: string) => {
+      setShaderCode(newValue);
+    },
+    [setShaderCode],
+  );
+
+  const onRecompile = useCallback(() => {
+    console.error("wgpuApp.current", wgpuApp.current);
+    wgpuApp.current?.updateShader(shaderCode);
+  }, [shaderCode]);
+
   return (
-    <div
-      id={id}
-      className="w-full aspect-video"
-      style={{
-        maxWidth: maxSize.width,
-        maxHeight: maxSize.height,
-      }}
-    />
+    <div className="w-full grid grid-cols-2 gap-4 relative">
+      <button
+        className="absolute left-0 top-0 bg-white text-black"
+        onClick={onRecompile}
+      >
+        Recompile
+      </button>
+      <div
+        id={id}
+        className="w-full aspect-video"
+        style={{
+          maxWidth: maxSize.width,
+          maxHeight: maxSize.height,
+        }}
+      />
+      <MonacoEditor
+        width="100%"
+        height="100%"
+        language="wgsl"
+        theme="vs-dark"
+        value={shaderCode}
+        options={{
+          minimap: { enabled: false },
+          language: "wgsl",
+          automaticLayout: true,
+        }}
+        onChange={onChange}
+      />
+    </div>
   );
 };
 
