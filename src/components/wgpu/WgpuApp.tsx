@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
-import { App } from "shaderx-wgpu";
+import { App, ICompilationMessage } from "shaderx-wgpu";
 import { useWgpu } from "../../context";
 import { ITextureSize } from "../../utils/types";
 import { getMaxDimension2D } from "shaderx-wgpu";
-import { Editor } from "@monaco-editor/react";
+import { Editor, Monaco, OnMount } from "@monaco-editor/react";
 
 type WgpuAppProps = {};
 
@@ -39,6 +39,9 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
   const [shaderCode, setShaderCode] = useState<string>(defaultShaderCode);
 
   const wgpuApp = useRef<App | null>(null);
+  const monacoRef = useRef<Monaco | null>(null);
+  const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+
   const id = useId();
 
   useEffect(() => {
@@ -59,10 +62,46 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
     };
   }, [initialized]);
 
+  const onMount: OnMount = useCallback((editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+  }, []);
+
   const onChange = useCallback(
     (newValue: string | undefined) => {
       if (!newValue) return;
       setShaderCode(newValue);
+
+      wgpuApp.current?.compileShader(newValue).then((info) => {
+        if (info.isEmpty()) {
+          monacoRef.current?.editor.removeAllMarkers("owner");
+          return;
+        }
+
+        const markers: any[] = [];
+
+        info.forEach((error) => {
+          if (!monacoRef.current || !error.location) return;
+          console.error(error);
+
+          markers.push({
+            message: error.message,
+            severity:
+              error.type === "error"
+                ? monacoRef.current.MarkerSeverity.Error
+                : monacoRef.current.MarkerSeverity.Warning,
+            startLineNumber: error.location.lineNumber,
+            startColumn: error.location.linePosition,
+            endLineNumber: error.location.lineNumber,
+            endColumn: error.location.linePosition + error.location.length,
+          });
+        });
+
+        const model = editorRef.current?.getModel();
+        if (monacoRef.current && model) {
+          monacoRef.current.editor.setModelMarkers(model, "owner", markers);
+        }
+      });
     },
     [setShaderCode],
   );
@@ -94,7 +133,11 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
         theme="vs-dark"
         defaultValue={defaultShaderCode}
         value={shaderCode}
+        options={{
+          minimap: { enabled: false },
+        }}
         onChange={onChange}
+        onMount={onMount}
       />
     </div>
   );
