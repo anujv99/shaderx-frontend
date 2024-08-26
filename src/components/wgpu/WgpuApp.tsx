@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
-import { App, ShaderCompilationInfo } from "shaderx-wgpu";
-import { getMaxDimension2D } from "shaderx-wgpu";
+import { App, ShaderCompilationInfo, getMaxDimension2D } from "shaderx-wgpu";
 import { Editor, Monaco, OnMount } from "@monaco-editor/react";
 import { Martian_Mono as CustomFont } from "next/font/google";
 
@@ -59,9 +58,9 @@ const WgpuApp: React.FC<WgpuAppProps> = () => {
 
   useEffect(() => {
     if (initialized) {
-      // @ts-ignore
-      new App({ containerId: id }).then((app: App) => {
+      App.new({ containerId: id }).then((app: App) => {
         wgpuApp.current = app;
+        wgpuApp.current.updateShader(defaultShaderCode);
       });
       const maxSize = getMaxDimension2D();
       setMaxSize({
