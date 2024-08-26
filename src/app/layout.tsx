@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter as CustomFont } from "next/font/google";
+import { Badge, Theme, ThemePanel } from "@radix-ui/themes";
+import "@radix-ui/themes/styles.css";
 import "./globals.css";
+import { TopbarContainer } from "../components/topbar";
 
 const font = CustomFont({ subsets: ["latin"] });
 
@@ -16,7 +19,15 @@ export default function RootLayout(props: Readonly<LayoutProps>) {
 
   return (
     <html lang="en">
-      <body className={font.className}>{children}</body>
+      <body className={font.className}>
+        <Theme appearance="dark">
+          <TopbarContainer className="flex items-center px-2">
+            <Badge color="sky">ShaderX</Badge>
+          </TopbarContainer>
+          <ThemePanel defaultOpen={false} />
+          {children}
+        </Theme>
+      </body>
     </html>
   );
 }

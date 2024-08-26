@@ -7,7 +7,7 @@ import { WgpuApp } from "../components/wgpu";
 const Page: React.FC = () => {
   return (
     <WgpuContextProvider>
-      <div className="page">
+      <div className="mt-4">
         <WgpuApp />
       </div>
     </WgpuContextProvider>
