@@ -11,6 +11,17 @@ import { ITextureSize } from "../../utils/types";
 type WgpuAppProps = {};
 
 const defaultShaderCode = `
+struct CommonBuffer {
+  time: f32,
+  delta_time: f32,
+  // padding
+  pad0: f32,
+  pad1: f32,
+}
+
+@group(0) @binding(0)
+var<uniform> buffer: CommonBuffer;
+
 struct VertexOutput {
   @builtin(position) clip_position: vec4<f32>,
   @location(0) vert_position: vec4<f32>,
@@ -31,8 +42,9 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-  let color = 0.5f + in.vert_position.xyz * 0.5f;
-  return vec4<f32>(color, 1.0);
+  let uv = vec2<f32>(in.vert_position.xy);
+  let col = 0.5f + 0.5f * cos(buffer.time + uv.xyx + vec3(0.0f, 2.0f, 4.0f));
+  return vec4<f32>(col, 1.0);
 }
 `;
 

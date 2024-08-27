@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Inter as CustomFont } from "next/font/google";
+import { Ubuntu as CustomFont } from "next/font/google";
 import { Badge, Theme, ThemePanel } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import "./globals.css";
 import { TopbarContainer } from "../components/topbar";
+import { Toaster } from "react-hot-toast";
 
-const font = CustomFont({ subsets: ["latin"] });
+const font = CustomFont({
+  weight: ["300", "400", "500", "700"],
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--custom-font",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,6 +26,7 @@ export default function RootLayout(props: Readonly<LayoutProps>) {
   return (
     <html lang="en">
       <body className={font.className}>
+        <Toaster />
         <Theme appearance="dark">
           <TopbarContainer className="flex items-center px-2">
             <Badge color="sky">ShaderX</Badge>
