@@ -20,6 +20,14 @@ const shaderData = atom((get) => {
   return data;
 });
 
+export function generateStaticParams() {
+  return {
+    params: {
+      id: "1",
+    },
+  };
+}
+
 const Page: React.FC<PageProps> = ({ params }) => {
   const { id: shaderId } = params;
   const setShaderId = useSetAtom(shaderIdAtom);
