@@ -1,3 +1,15 @@
+FROM rust:lates
+
+WORKDIR /wgpu
+
+# install and build using wasm-pack
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+COPY . .
+
+RUN wasm-pack build --target web
+
+# Build the final image
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
