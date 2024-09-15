@@ -1,13 +1,9 @@
-FROM rust:lates
-
+# Build WASM
+FROM rust:latest AS rst
 WORKDIR /wgpu
-
-# install and build using wasm-pack
-RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
 COPY . .
-
-RUN wasm-pack build --target web
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+RUN cd wgpu && wasm-pack build --target web && cd ..
 
 # Build the final image
 FROM node:18-alpine AS base
@@ -33,6 +29,7 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY --from=rst /wgpu/wgpu ./wgpu
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
