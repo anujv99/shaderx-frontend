@@ -20,3 +20,4 @@ const Page: React.FC<PageProps> = ({ params }) => {
 };
 
 export default Page;
+export const dynamicParams = true;
