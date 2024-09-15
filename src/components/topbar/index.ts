@@ -1,3 +1,4 @@
 import TopbarContainer from "./Container";
+import MainTopbar from "./MainTopbar";
 
-export { TopbarContainer };
+export { TopbarContainer, MainTopbar };

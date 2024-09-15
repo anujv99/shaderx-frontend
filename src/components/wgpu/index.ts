@@ -1,3 +1,5 @@
 import WgpuApp from "./WgpuApp";
+import WgpuCanvas, { WgpuCanvasRef } from "./WgpuCanvas";
 
-export { WgpuApp };
+export { WgpuApp, WgpuCanvas };
+export type { WgpuCanvasRef };

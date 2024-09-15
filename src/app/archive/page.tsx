@@ -4,11 +4,10 @@ import { useAtom } from "jotai";
 import { loadable } from "jotai/utils";
 import React from "react";
 
-import { shaderAtom } from "../atoms";
-import { ShaderCard } from "../components/cards";
-import { IShader } from "../utils/types";
+import { archivedShaderAtom } from "../../atoms";
+import { ShaderCard } from "../../components/cards";
 
-const loadableShaders = loadable(shaderAtom);
+const loadableShaders = loadable(archivedShaderAtom);
 
 const Page: React.FC = () => {
   const [shaders] = useAtom(loadableShaders);
@@ -17,7 +16,7 @@ const Page: React.FC = () => {
     <div className="w-full flex gap-4 flex-wrap p-4">
       {shaders.state === "hasData" && (
         <>
-          {(shaders.data || []).map((shader: IShader) => (
+          {(shaders.data || []).map((shader: any) => (
             <ShaderCard key={shader.id} shader={shader} />
           ))}
         </>

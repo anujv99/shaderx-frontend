@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import { Ubuntu as CustomFont } from "next/font/google";
-import { Badge, Theme, ThemePanel } from "@radix-ui/themes";
+import { Provider } from "jotai";
+import { Theme, ThemePanel } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+
 import "./globals.css";
-import { TopbarContainer } from "../components/topbar";
+import { MainTopbar } from "../components/topbar";
 import { Toaster } from "react-hot-toast";
+import AuthContextProvider from "../context/AuthContext";
+import { Suspense } from "react";
+import { WgpuContextProvider } from "../context";
 
 const font = CustomFont({
   weight: ["300", "400", "500", "700"],
@@ -27,12 +32,23 @@ export default function RootLayout(props: Readonly<LayoutProps>) {
     <html lang="en">
       <body className={font.className}>
         <Toaster />
-        <Theme appearance="dark">
-          <TopbarContainer className="flex items-center px-2">
-            <Badge color="sky">ShaderX</Badge>
-          </TopbarContainer>
+        <Theme
+          appearance="dark"
+          accentColor="pink"
+          radius="small"
+          scaling="95%"
+        >
           <ThemePanel defaultOpen={false} />
-          {children}
+          <Provider>
+            <Suspense fallback="Loading...">
+              <AuthContextProvider>
+                <WgpuContextProvider>
+                  <MainTopbar />
+                  {children}
+                </WgpuContextProvider>
+              </AuthContextProvider>
+            </Suspense>
+          </Provider>
         </Theme>
       </body>
     </html>
