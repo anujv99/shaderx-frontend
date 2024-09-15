@@ -7,10 +7,6 @@ type PageProps = {
   };
 };
 
-export async function generateStaticParams() {
-  return [];
-}
-
 const Page: React.FC<PageProps> = ({ params }) => {
   const { id: shaderId } = params;
 
@@ -20,4 +16,3 @@ const Page: React.FC<PageProps> = ({ params }) => {
 };
 
 export default Page;
-export const dynamicParams = true;
