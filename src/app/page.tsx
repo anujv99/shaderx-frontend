@@ -1,17 +1,14 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { loadable } from "jotai/utils";
 import React from "react";
 
-import { shaderAtom } from "../atoms";
 import { ShaderCard } from "../components/cards";
 import { IShader } from "../utils/types";
-
-const loadableShaders = loadable(shaderAtom);
+import { ShadersAtom } from "../atoms";
 
 const Page: React.FC = () => {
-  const [shaders] = useAtom(loadableShaders);
+  const [shaders] = useAtom(ShadersAtom.shaderAtom);
 
   return (
     <div className="w-full flex gap-4 flex-wrap p-4">

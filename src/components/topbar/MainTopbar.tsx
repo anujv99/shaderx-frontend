@@ -63,7 +63,7 @@ const MainTopbar: React.FC = () => {
   return (
     <TopbarContainer className="flex items-center px-2 justify-between">
       <Link href="/">
-        <Badge>ShaderX</Badge>
+        <Badge>Rangg</Badge>
       </Link>
       {!authenticated && (
         <Button variant="surface" disabled={!url} onClick={onClickSignIn}>

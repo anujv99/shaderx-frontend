@@ -2,13 +2,27 @@ import React from "react";
 import moment from "moment";
 
 import { IShader } from "../../utils/types";
-import { AspectRatio, Box, Card, Text } from "@radix-ui/themes";
+import { AspectRatio, Box, Card, IconButton, Text } from "@radix-ui/themes";
+import { DotsVerticalIcon, PlusIcon } from "@radix-ui/react-icons";
+import { MyShaderMenu } from "../menu";
 
-type ShaderCardProps = {
+type MyShaderCardProps = {
   shader: IShader;
+  archived?: boolean;
+  openShader: (shader: IShader) => void;
+  archiveShader: (shader: IShader) => Promise<void>;
+  restoreShader: (shader: IShader) => Promise<void>;
+  deleteShader: (shader: IShader) => void;
 };
 
-const ShaderCard: React.FC<ShaderCardProps> = ({ shader }) => {
+const MyShaderCard: React.FC<MyShaderCardProps> = ({
+  shader,
+  archived,
+  openShader,
+  archiveShader,
+  restoreShader,
+  deleteShader,
+}) => {
   return (
     <Box maxWidth="256px" minWidth="256px">
       <Card asChild>
@@ -32,6 +46,18 @@ const ShaderCard: React.FC<ShaderCardProps> = ({ shader }) => {
                 Created {moment(shader.created_at).fromNow()}
               </Text>
             </div>
+            <MyShaderMenu
+              shader={shader}
+              archived={archived}
+              onOpen={openShader}
+              onArchive={archiveShader}
+              onRestore={restoreShader}
+              onDelete={deleteShader}
+            >
+              <IconButton size="1" variant="soft" color="gray">
+                <DotsVerticalIcon width={16} height={16} />
+              </IconButton>
+            </MyShaderMenu>
           </div>
         </div>
       </Card>
@@ -39,4 +65,4 @@ const ShaderCard: React.FC<ShaderCardProps> = ({ shader }) => {
   );
 };
 
-export default ShaderCard;
+export default MyShaderCard;

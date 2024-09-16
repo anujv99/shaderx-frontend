@@ -1,3 +1,3 @@
-import { shaderAtom, myShaderAtom, archivedShaderAtom } from "./ShadersAtom";
+import * as ShadersAtom from "./ShadersAtom";
 
-export { shaderAtom, myShaderAtom, archivedShaderAtom };
+export { ShadersAtom };
