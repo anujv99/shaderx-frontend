@@ -6,7 +6,7 @@ import React, { useCallback, useState } from "react";
 import { MyShaderCard, NewShaderCard } from "../../components/cards";
 import { DeleteShaderDialog, NewShaderDialog } from "../../components/dialogs";
 import { ShadersAtom } from "../../atoms";
-import { IShader } from "../../utils/types";
+import { IShader, TShaderAccess } from "../../utils/types";
 import { useRouter } from "next/navigation";
 import { ShaderRoutes } from "../../api/routes";
 
@@ -60,6 +60,16 @@ const Page: React.FC = () => {
     [dispatch],
   );
 
+  const changeAccess = useCallback(
+    async (shader: IShader, access: TShaderAccess) => {
+      await ShaderRoutes.updateShader(shader.id, {
+        access,
+      });
+      dispatch({ type: "UPDATE_SHADER", payload: { ...shader, access } });
+    },
+    [dispatch],
+  );
+
   return (
     <div className="w-full flex gap-4 flex-wrap p-4">
       <NewShaderDialog>
@@ -74,6 +84,7 @@ const Page: React.FC = () => {
               openShader={openShader}
               archiveShader={archiveShader}
               restoreShader={restoreShader}
+              changeAccess={changeAccess}
               deleteShader={deleteShader}
             />
           ))}

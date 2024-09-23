@@ -9,6 +9,7 @@ import { IShader } from "../../utils/types";
 import { useRouter } from "next/navigation";
 import { ShaderRoutes } from "../../api/routes";
 import { DeleteShaderDialog } from "../../components/dialogs";
+import { nothing } from "../../utils/helper";
 
 const Page: React.FC = () => {
   const [shaders] = useAtom(ShadersAtom.archivedShaderAtom);
@@ -72,6 +73,7 @@ const Page: React.FC = () => {
               openShader={openShader}
               archiveShader={archiveShader}
               restoreShader={restoreShader}
+              changeAccess={nothing}
               deleteShader={deleteShader}
             />
           ))}

@@ -1,7 +1,7 @@
 import React from "react";
 import moment from "moment";
 
-import { IShader } from "../../utils/types";
+import { IShader, TShaderAccess } from "../../utils/types";
 import { AspectRatio, Box, Card, IconButton, Text } from "@radix-ui/themes";
 import { DotsVerticalIcon, PlusIcon } from "@radix-ui/react-icons";
 import { MyShaderMenu } from "../menu";
@@ -12,6 +12,7 @@ type MyShaderCardProps = {
   openShader: (shader: IShader) => void;
   archiveShader: (shader: IShader) => Promise<void>;
   restoreShader: (shader: IShader) => Promise<void>;
+  changeAccess: (shader: IShader, access: TShaderAccess) => Promise<void>;
   deleteShader: (shader: IShader) => void;
 };
 
@@ -21,6 +22,7 @@ const MyShaderCard: React.FC<MyShaderCardProps> = ({
   openShader,
   archiveShader,
   restoreShader,
+  changeAccess,
   deleteShader,
 }) => {
   return (
@@ -52,6 +54,7 @@ const MyShaderCard: React.FC<MyShaderCardProps> = ({
               onOpen={openShader}
               onArchive={archiveShader}
               onRestore={restoreShader}
+              onChangeAccess={changeAccess}
               onDelete={deleteShader}
             >
               <IconButton size="1" variant="soft" color="gray">

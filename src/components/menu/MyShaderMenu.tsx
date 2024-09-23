@@ -3,10 +3,11 @@ import { DropdownMenu, Spinner } from "@radix-ui/themes";
 import {
   CountdownTimerIcon,
   ResumeIcon,
+  Share2Icon,
   TrashIcon,
 } from "@radix-ui/react-icons";
 
-import { IShader } from "../../utils/types";
+import { IShader, TShaderAccess } from "../../utils/types";
 
 type MyShaderMenuProps = {
   shader: IShader;
@@ -15,6 +16,7 @@ type MyShaderMenuProps = {
   onOpen: (shader: IShader) => void;
   onArchive: (shader: IShader) => Promise<void>;
   onRestore: (shader: IShader) => Promise<void>;
+  onChangeAccess: (shader: IShader, access: TShaderAccess) => Promise<void>;
   onDelete: (shader: IShader) => void;
 };
 
@@ -25,6 +27,7 @@ const MyShaderMenu: React.FC<MyShaderMenuProps> = ({
   onOpen,
   onArchive,
   onRestore,
+  onChangeAccess,
   onDelete,
 }) => {
   const [calling, setCalling] = useState("");
@@ -69,6 +72,29 @@ const MyShaderMenu: React.FC<MyShaderMenuProps> = ({
               <ResumeIcon />
               Open
             </DropdownMenu.Item>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                <Share2Icon />
+                Access
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent className="w-48">
+                <DropdownMenu.Item
+                  onClick={() => onChangeAccess(shader, "Public")}
+                >
+                  Public
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onClick={() => onChangeAccess(shader, "Unlisted")}
+                >
+                  Unlisted
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  onClick={() => onChangeAccess(shader, "Private")}
+                >
+                  Private
+                </DropdownMenu.Item>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
             <DropdownMenu.Separator />
             <DropdownMenu.Item
               onClick={archiveShader}

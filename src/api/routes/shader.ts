@@ -1,4 +1,8 @@
-import { ICreateShaderParams, IShader } from "../../utils/types";
+import {
+  ICreateShaderParams,
+  IShader,
+  TUpdateShaderParams,
+} from "../../utils/types";
 import apiRouter from "./router";
 
 const createNewShader = async (data: ICreateShaderParams) => {
@@ -102,6 +106,22 @@ const restoreShader = async (id: string) => {
   }
 };
 
+const updateShader = async (id: string, data: TUpdateShaderParams) => {
+  try {
+    const response = await apiRouter({
+      method: "put",
+      url: `/shader/${id}`,
+      data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data as IShader;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export {
   createNewShader,
   getShader,
@@ -110,4 +130,5 @@ export {
   getMyArchivedShaders,
   deleteShader,
   restoreShader,
+  updateShader,
 };
