@@ -1,13 +1,16 @@
 import React, { useCallback, useState } from "react";
 import { DropdownMenu, Spinner } from "@radix-ui/themes";
 import {
+  CheckIcon,
   CountdownTimerIcon,
+  Pencil1Icon,
   ResumeIcon,
   Share2Icon,
   TrashIcon,
 } from "@radix-ui/react-icons";
 
 import { IShader, TShaderAccess } from "../../utils/types";
+import { cx } from "../../utils";
 
 type MyShaderMenuProps = {
   shader: IShader;
@@ -18,6 +21,7 @@ type MyShaderMenuProps = {
   onRestore: (shader: IShader) => Promise<void>;
   onChangeAccess: (shader: IShader, access: TShaderAccess) => Promise<void>;
   onDelete: (shader: IShader) => void;
+  onEdit: (shader: IShader) => void;
 };
 
 const MyShaderMenu: React.FC<MyShaderMenuProps> = ({
@@ -29,6 +33,7 @@ const MyShaderMenu: React.FC<MyShaderMenuProps> = ({
   onRestore,
   onChangeAccess,
   onDelete,
+  onEdit,
 }) => {
   const [calling, setCalling] = useState("");
 
@@ -60,6 +65,10 @@ const MyShaderMenu: React.FC<MyShaderMenuProps> = ({
     [shader, onRestore],
   );
 
+  const editShader = useCallback(() => {
+    onEdit(shader);
+  }, [shader, onEdit]);
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger className="cursor-pointer">
@@ -81,20 +90,35 @@ const MyShaderMenu: React.FC<MyShaderMenuProps> = ({
                 <DropdownMenu.Item
                   onClick={() => onChangeAccess(shader, "Public")}
                 >
+                  <CheckIcon
+                    className={cx({ "opacity-0": shader.access !== "Public" })}
+                  />
                   Public
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onClick={() => onChangeAccess(shader, "Unlisted")}
                 >
+                  <CheckIcon
+                    className={cx({
+                      "opacity-0": shader.access !== "Unlisted",
+                    })}
+                  />
                   Unlisted
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
                   onClick={() => onChangeAccess(shader, "Private")}
                 >
+                  <CheckIcon
+                    className={cx({ "opacity-0": shader.access !== "Private" })}
+                  />
                   Private
                 </DropdownMenu.Item>
               </DropdownMenu.SubContent>
             </DropdownMenu.Sub>
+            <DropdownMenu.Item onClick={editShader}>
+              <Pencil1Icon />
+              Edit
+            </DropdownMenu.Item>
             <DropdownMenu.Separator />
             <DropdownMenu.Item
               onClick={archiveShader}

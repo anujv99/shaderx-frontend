@@ -28,6 +28,13 @@ const myShaderReducer = async (state: IShader[] | undefined, action: any) => {
     case "RESTORE_SHADER":
       state = [...state, action.payload];
       break;
+    case "UPDATE_SHADER":
+      state = state.map((shader) =>
+        shader.id === action.payload.id
+          ? { ...shader, ...action.payload }
+          : shader,
+      );
+      break;
     default:
       break;
   }
@@ -47,6 +54,13 @@ const archivedShaderReducer = async (
       break;
     case "RESTORE_SHADER":
       state = state.filter((shader) => shader.id !== action.payload.id);
+      break;
+    case "UPDATE_SHADER":
+      state = state.map((shader) =>
+        shader.id === action.payload.id
+          ? { ...shader, ...action.payload }
+          : shader,
+      );
       break;
     default:
       break;

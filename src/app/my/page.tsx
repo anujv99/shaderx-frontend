@@ -4,9 +4,13 @@ import { useAtom, useSetAtom } from "jotai";
 import React, { useCallback, useState } from "react";
 
 import { MyShaderCard, NewShaderCard } from "../../components/cards";
-import { DeleteShaderDialog, NewShaderDialog } from "../../components/dialogs";
+import {
+  DeleteShaderDialog,
+  NewShaderDialog,
+  UpdateShaderDialog,
+} from "../../components/dialogs";
 import { ShadersAtom } from "../../atoms";
-import { IShader, TShaderAccess } from "../../utils/types";
+import { IShader, TShaderAccess, TUpdateShaderParams } from "../../utils/types";
 import { useRouter } from "next/navigation";
 import { ShaderRoutes } from "../../api/routes";
 
@@ -15,6 +19,7 @@ const Page: React.FC = () => {
   const dispatch = useSetAtom(ShadersAtom.shaderReducerAtom);
 
   const [deleting, setDeleting] = useState<IShader | null>(null);
+  const [editing, setEditing] = useState<IShader | null>(null);
 
   const router = useRouter();
 
@@ -70,6 +75,26 @@ const Page: React.FC = () => {
     [dispatch],
   );
 
+  const updateShader = useCallback(
+    async (shader: IShader, params: TUpdateShaderParams) => {
+      console.log("updateShader", shader, params);
+      await ShaderRoutes.updateShader(shader.id, params);
+      dispatch({ type: "UPDATE_SHADER", payload: { ...shader, ...params } });
+    },
+    [dispatch],
+  );
+
+  const editShader = useCallback(
+    (shader: IShader) => {
+      setEditing(shader);
+    },
+    [setEditing],
+  );
+
+  const closeEditShader = useCallback(() => {
+    setEditing(null);
+  }, [setEditing]);
+
   return (
     <div className="w-full flex gap-4 flex-wrap p-4">
       <NewShaderDialog>
@@ -86,6 +111,7 @@ const Page: React.FC = () => {
               restoreShader={restoreShader}
               changeAccess={changeAccess}
               deleteShader={deleteShader}
+              editShader={editShader}
             />
           ))}
         </>
@@ -95,6 +121,13 @@ const Page: React.FC = () => {
           shader={deleting}
           deleteShader={confirmDelete}
           close={cancelDelete}
+        />
+      )}
+      {editing && (
+        <UpdateShaderDialog
+          shader={editing}
+          close={closeEditShader}
+          updateShader={updateShader}
         />
       )}
     </div>

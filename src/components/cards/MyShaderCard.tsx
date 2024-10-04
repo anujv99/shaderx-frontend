@@ -14,6 +14,7 @@ type MyShaderCardProps = {
   restoreShader: (shader: IShader) => Promise<void>;
   changeAccess: (shader: IShader, access: TShaderAccess) => Promise<void>;
   deleteShader: (shader: IShader) => void;
+  editShader: (shader: IShader) => void;
 };
 
 const MyShaderCard: React.FC<MyShaderCardProps> = ({
@@ -24,6 +25,7 @@ const MyShaderCard: React.FC<MyShaderCardProps> = ({
   restoreShader,
   changeAccess,
   deleteShader,
+  editShader,
 }) => {
   return (
     <Box maxWidth="256px" minWidth="256px">
@@ -56,6 +58,7 @@ const MyShaderCard: React.FC<MyShaderCardProps> = ({
               onRestore={restoreShader}
               onChangeAccess={changeAccess}
               onDelete={deleteShader}
+              onEdit={editShader}
             >
               <IconButton size="1" variant="soft" color="gray">
                 <DotsVerticalIcon width={16} height={16} />

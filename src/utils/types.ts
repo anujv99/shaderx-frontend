@@ -12,7 +12,9 @@ interface IShaderData {
   code: string;
 }
 
-type TShaderAccess = "Public" | "Unlisted" | "Private";
+const ShaderAccessValues = ["Public", "Unlisted", "Private"] as const;
+
+type TShaderAccess = (typeof ShaderAccessValues)[number];
 
 interface IShaderTags {
   [key: string]: string;
@@ -52,3 +54,5 @@ export type {
   TUpdateShaderParams,
   TShaderAccess,
 };
+
+export { ShaderAccessValues };
