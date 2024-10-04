@@ -75,6 +75,7 @@ const Page: React.FC = () => {
               restoreShader={restoreShader}
               changeAccess={nothing}
               deleteShader={deleteShader}
+              editShader={nothing}
             />
           ))}
         </>
