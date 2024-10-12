@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import { WgpuApp } from "../../components/wgpu";
+import { WgpuNodeEditor } from "../../components/wgpu";
 import { IShaderData } from "../../utils/types";
 
 type EditorProps = {
@@ -9,11 +9,7 @@ type EditorProps = {
 };
 
 const Editor: React.FC<EditorProps> = ({ data }) => {
-  return (
-    <div className="w-full">
-      <WgpuApp shader={data} />
-    </div>
-  );
+  return <WgpuNodeEditor shader={data} />;
 };
 
 export default Editor;

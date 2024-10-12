@@ -1,23 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { InstanceHandle, ShaderCompilationInfo } from "shaderx-wgpu";
+import { ShaderCompilationInfo } from "shaderx-wgpu";
 import { Editor, Monaco, OnMount } from "@monaco-editor/react";
 import { Martian_Mono as CustomFont } from "next/font/google";
 
 import { IShaderData } from "../../utils/types";
 import WgpuCanvas, { WgpuCanvasRef } from "./WgpuCanvas";
 
-type WgpuAppProps = {
+type WgpuCodeEditorProps = {
   shader: IShaderData;
 };
 
 const editorFont = CustomFont({ subsets: ["latin"] });
 
-const WgpuApp: React.FC<WgpuAppProps> = (props) => {
+const WgpuCodeEditor: React.FC<WgpuCodeEditorProps> = (props) => {
   const { shader } = props;
 
   const [shaderCode, setShaderCode] = useState<string>(shader.code);
-
-  const instanceHandleRef = useRef<InstanceHandle | null>(null);
 
   const wgpuCanvasRef = useRef<WgpuCanvasRef>(null);
 
@@ -132,4 +130,4 @@ const WgpuApp: React.FC<WgpuAppProps> = (props) => {
   );
 };
 
-export default WgpuApp;
+export default WgpuCodeEditor;

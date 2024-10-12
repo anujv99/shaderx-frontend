@@ -1,5 +1,6 @@
-import WgpuApp from "./WgpuApp";
+import WgpuCodeEditor from "./WgpuCodeEditor";
+import WgpuNodeEditor from "./WgpuNodeEditor";
 import WgpuCanvas, { WgpuCanvasRef } from "./WgpuCanvas";
 
-export { WgpuApp, WgpuCanvas };
+export { WgpuCodeEditor, WgpuNodeEditor, WgpuCanvas };
 export type { WgpuCanvasRef };

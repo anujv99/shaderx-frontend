@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Ubuntu as CustomFont } from "next/font/google";
+
 import { Provider } from "jotai";
 import { Theme, ThemePanel } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
@@ -33,6 +34,7 @@ export default function RootLayout(props: Readonly<LayoutProps>) {
       <body className={font.className}>
         <Toaster />
         <Theme
+          className="w-full min-h-dvh flex flex-col"
           appearance="dark"
           accentColor="pink"
           radius="small"

@@ -1,26 +1,26 @@
-interface ITextureSize {
+export interface ITextureSize {
   width: number;
   height: number;
 }
 
-interface IUserProfile {
+export interface IUserProfile {
   name: string;
   email: string;
 }
 
-interface IShaderData {
+export interface IShaderData {
   code: string;
 }
 
-const ShaderAccessValues = ["Public", "Unlisted", "Private"] as const;
+export const ShaderAccessValues = ["Public", "Unlisted", "Private"] as const;
 
-type TShaderAccess = (typeof ShaderAccessValues)[number];
+export type TShaderAccess = (typeof ShaderAccessValues)[number];
 
-interface IShaderTags {
+export interface IShaderTags {
   [key: string]: string;
 }
 
-interface IShader {
+export interface IShader {
   id: string;
   name: string;
   description: string;
@@ -31,13 +31,13 @@ interface IShader {
   updated_at: string;
 }
 
-interface ICreateShaderParams {
+export interface ICreateShaderParams {
   name: string;
   description: string;
   data: IShaderData;
 }
 
-type TUpdateShaderParams = Partial<{
+export type TUpdateShaderParams = Partial<{
   name: string;
   description: string;
   data: IShaderData;
@@ -45,14 +45,32 @@ type TUpdateShaderParams = Partial<{
   tags: IShaderTags;
 }>;
 
-export type {
-  ITextureSize,
-  IUserProfile,
-  IShaderData,
-  IShader,
-  ICreateShaderParams,
-  TUpdateShaderParams,
-  TShaderAccess,
-};
+export interface IVec2 {
+  x: number;
+  y: number;
+}
 
-export { ShaderAccessValues };
+export interface IVec3 extends IVec2 {
+  z: number;
+}
+
+export interface IVec4 extends IVec3 {
+  w: number;
+}
+
+export enum MathOp {
+  add = "+",
+  subtract = "-",
+  multiply = "*",
+  divide = "/",
+  modulo = "%",
+}
+
+export enum TrignoOp {
+  sin = "sin",
+  cos = "cos",
+  tan = "tan",
+  asin = "asin",
+  acos = "acos",
+  atan = "atan",
+}
