@@ -1,17 +1,20 @@
 import { Edge, Node } from "@xyflow/react";
 import assert from "assert";
-import { IVec4, MathOp, TrignoOp } from "../../../utils/types";
+import {
+  IIProcessNodeResult,
+  IProcessNodeProps,
+  IProcessNodeResult,
+  IVec4,
+  MathOp,
+  TrignoOp,
+} from "../../../utils/types";
 import { vertexShaderCode } from "../../../utils/data";
-
-type ProcessNodeResult = {
-  code: string;
-  vars: string[];
-};
+import { getNodeSpec } from "../nodes";
 
 class NodeCompiler {
   private lastVarId = 0;
 
-  private processedNodes: Map<string, ProcessNodeResult> = new Map();
+  private processedNodes: Map<string, IIProcessNodeResult> = new Map();
 
   constructor() {}
 
@@ -26,8 +29,10 @@ class NodeCompiler {
     // find the fragColor node
     const fragColor = this.getFragColorNode(nodes);
     if (!fragColor) return null;
+    const fragColorEdge = this.getFragColorEdge(fragColor, edges);
+    if (!fragColorEdge) return null;
 
-    const { code } = this.processNode(fragColor, nodes, edges);
+    const { code } = this.processNode(fragColor, fragColorEdge, nodes, edges);
 
     return `
       ${vertexShaderCode}
@@ -43,6 +48,10 @@ class NodeCompiler {
     return nodes.find((n) => n.type === "fragColor");
   }
 
+  private getFragColorEdge(node: Node, edges: Edge[]) {
+    return edges.find((e) => e.target === node.id);
+  }
+
   private removeUnusedNodes(nodes: Node[], edges: Edge[]): Node[] {
     const usedNodes = new Set<string>();
 
@@ -56,9 +65,10 @@ class NodeCompiler {
 
   private processNode(
     node: Node,
+    edge: Edge,
     nodes: Node[],
     edges: Edge[],
-  ): ProcessNodeResult {
+  ): IProcessNodeResult {
     const previousNodes = this.getPreviousNodes(node, nodes, edges);
 
     let previousCode = "";
@@ -66,7 +76,7 @@ class NodeCompiler {
 
     if (previousNodes.length > 0) {
       previousNodes.forEach((n) => {
-        const { code, vars } = this.processNode(n, nodes, edges);
+        const { code, vars } = this.processNode(n[0], n[1], nodes, edges);
         previousCode = `
           ${previousCode}
           ${code}
@@ -76,7 +86,7 @@ class NodeCompiler {
     }
 
     previousVars = Array.from(new Set(previousVars));
-    const nodeCode = this.convertNodeToCode(node, previousVars);
+    const nodeCode = this.convertNodeToCode(node, edge, previousVars);
 
     return {
       code: `
@@ -87,11 +97,19 @@ class NodeCompiler {
     };
   }
 
-  private getPreviousNodes(node: Node, nodes: Node[], edges: Edge[]): Node[] {
+  private getPreviousNodes(
+    node: Node,
+    nodes: Node[],
+    edges: Edge[],
+  ): [Node, Edge][] {
     const previousEdges = edges.filter((e) => e.target === node.id);
     return previousEdges
-      .map((e) => nodes.find((n) => n.id === e.source))
-      .filter(Boolean) as Node[];
+      .map((e) => {
+        const sourceNode = nodes.find((n) => n.id === e.source);
+        if (!sourceNode) return undefined;
+        return [sourceNode, e];
+      })
+      .filter(Boolean) as [Node, Edge][];
   }
 
   private generateVarName() {
@@ -104,9 +122,10 @@ class NodeCompiler {
 
   private convertNodeToCode(
     node: Node,
+    edge: Edge,
     inputVars: string[],
-  ): ProcessNodeResult | undefined {
-    let data: ProcessNodeResult | undefined;
+  ): IProcessNodeResult | undefined {
+    let data: IProcessNodeResult | undefined;
 
     const previousData = this.processedNodes.get(node.id);
     if (previousData) {
@@ -116,33 +135,32 @@ class NodeCompiler {
       };
     }
 
+    const spec = getNodeSpec(node.type);
+    assert(spec);
+
+    const props: IProcessNodeProps = {
+      node,
+      edge,
+      spec,
+      inputVars,
+      generateVarName: this.generateVarNames.bind(this),
+    };
+
     switch (node.type) {
       case "color":
-        data = this.pColorNode(node);
-        break;
       case "fragColor":
-        data = this.pFragColorNode(node, inputVars);
-        break;
       case "fragPos":
-        data = this.pFragPosNode(node);
-        break;
       case "math":
-        data = this.pMathNode(node, inputVars);
-        break;
       case "time":
-        data = this.pTimeNode(node);
-        break;
       case "trigno":
-        data = this.pTrignoNode(node, inputVars);
+      case "number":
+        data = spec.getCode(props);
         break;
       case "split":
         data = this.pSplitNode(node, inputVars);
         break;
       case "combine":
         data = this.pCombineNode(node, inputVars);
-        break;
-      case "number":
-        data = this.pNumberNode(node);
         break;
       default:
         break;
@@ -156,65 +174,7 @@ class NodeCompiler {
     return undefined;
   }
 
-  private pColorNode(node: Node): ProcessNodeResult {
-    const vars = this.generateVarName();
-    const col = node.data.color as IVec4;
-
-    return {
-      code: `let ${vars} = vec4<f32>(${col.x}, ${col.y}, ${col.z}, ${col.w});`,
-      vars: [vars],
-    };
-  }
-
-  private pFragColorNode(_node: Node, inputVars: string[]): ProcessNodeResult {
-    assert(inputVars.length === 1);
-
-    return {
-      code: `return vec4<f32>(${inputVars[0]});`,
-      vars: inputVars,
-    };
-  }
-
-  private pFragPosNode(_node: Node): ProcessNodeResult {
-    const vars = this.generateVarName();
-    return {
-      code: `let ${vars} = vec2<f32>(in.vert_position.xy);`,
-      vars: [vars],
-    };
-  }
-
-  private pMathNode(node: Node, inputVars: string[]): ProcessNodeResult {
-    assert(inputVars.length === 2);
-
-    const vars = this.generateVarName();
-    const op = (node.data.op || MathOp.add) as MathOp;
-
-    return {
-      code: `let ${vars} = ${inputVars[0]} ${op} ${inputVars[1]};`,
-      vars: [vars],
-    };
-  }
-
-  private pTimeNode(_: Node): ProcessNodeResult {
-    return {
-      code: ``,
-      vars: [`buffer.time`],
-    };
-  }
-
-  private pTrignoNode(node: Node, inputVars: string[]): ProcessNodeResult {
-    assert(inputVars.length === 1);
-
-    const vars = this.generateVarName();
-    const op = (node.data.op || TrignoOp.sin) as TrignoOp;
-
-    return {
-      code: `let ${vars} = ${op}(${inputVars[0]});`,
-      vars: [vars],
-    };
-  }
-
-  private pSplitNode(_node: Node, inputVars: string[]): ProcessNodeResult {
+  private pSplitNode(_node: Node, inputVars: string[]): IProcessNodeResult {
     assert(inputVars.length === 1);
     const vars = this.generateVarNames(4);
 
@@ -230,24 +190,13 @@ class NodeCompiler {
     };
   }
 
-  private pCombineNode(_node: Node, inputVars: string[]): ProcessNodeResult {
+  private pCombineNode(_node: Node, inputVars: string[]): IProcessNodeResult {
     assert(inputVars.length === 4);
 
     const vars = this.generateVarName();
 
     return {
       code: `let ${vars} = vec4<f32>(${inputVars.join(", ")});`,
-      vars: [vars],
-    };
-  }
-
-  private pNumberNode(node: Node): ProcessNodeResult {
-    const vars = this.generateVarName();
-    let number = node.data.number as number;
-    if (typeof number === "undefined") number = 0;
-
-    return {
-      code: `let ${vars} = f32(${number});`,
       vars: [vars],
     };
   }

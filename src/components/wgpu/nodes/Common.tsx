@@ -14,6 +14,7 @@ import React, {
   useState,
 } from "react";
 import { cx } from "../../../utils";
+import { getHandleId } from "../../../utils/helper";
 
 const NodeLabel: React.FC<{
   className?: string;
@@ -28,13 +29,14 @@ const NodeLabel: React.FC<{
 };
 
 const NodeContainer: React.FC<{
+  id: string;
   heading?: string;
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
-}> = ({ heading, className, style, children }) => {
+}> = ({ id, heading, className, style, children }) => {
   return (
-    <Card className={cx("p-0", className)} style={style}>
+    <Card id={id} className={cx("p-0", className)} style={style}>
       {heading && (
         <>
           <Text className="px-2 py-1" size="1">
@@ -50,9 +52,10 @@ const NodeContainer: React.FC<{
 
 const NodeHandle: React.FC<
   HandleProps & {
+    containerId: string;
     htmlFor?: string;
   }
-> = ({ htmlFor, ...rest }) => {
+> = ({ containerId, htmlFor, type, ...rest }) => {
   const [pos, setPos] = useState<number | undefined>(undefined);
 
   const nodeId = useNodeId();
@@ -72,11 +75,12 @@ const NodeHandle: React.FC<
   const recalculatePos = useCallback(() => {
     if (!htmlFor) return;
 
-    const el = document.getElementById(htmlFor);
-    if (!el) return;
-
-    const parent = el.closest(".react-flow__node");
+    const parent = document.getElementById(containerId);
     if (!parent) return;
+
+    const elId = `#${getHandleId(htmlFor, type)}`;
+    const el = parent.querySelector(elId);
+    if (!el) return;
 
     const parentRect = parent.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
@@ -85,20 +89,25 @@ const NodeHandle: React.FC<
     top /= zoomRef.current;
 
     setPos(top);
-  }, [htmlFor]);
+  }, [htmlFor, type, containerId]);
 
   useLayoutEffect(() => {
-    const el = htmlFor && document.getElementById(htmlFor);
+    if (!htmlFor) return;
+
+    const parent = document.getElementById(containerId);
+    const elId = `#${getHandleId(htmlFor, type)}`;
+    const el = parent?.querySelector(elId);
     if (!el) return;
 
     const observer = new ResizeObserver(recalculatePos);
     observer.observe(el);
 
     return () => observer.disconnect();
-  }, [htmlFor]);
+  }, [type, containerId, htmlFor]);
 
   return (
     <Handle
+      type={type}
       style={{
         top: pos,
         ...rest.style,

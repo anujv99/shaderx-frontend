@@ -4,6 +4,7 @@ import {
   Background,
   Connection,
   Controls,
+  NodeProps,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
@@ -21,10 +22,10 @@ const font = CustomFont({
 
 import { IShaderData } from "../../utils/types";
 import WgpuCanvas, { WgpuCanvasRef } from "./WgpuCanvas";
-import * as Nodes from "./nodes";
 import { NodeCompiler } from "./compiler";
 import { NodeMenu } from "../menu";
 import { newShaderNodes } from "../../utils/data";
+import { Nodes } from "./nodes";
 
 type WgpuNodeEditorProps = {
   shader: IShaderData;
@@ -36,17 +37,13 @@ const getId = () => {
   return `${nodeId++}`;
 };
 
-const nodeTypes = {
-  fragPos: Nodes.FragPos,
-  fragColor: Nodes.FragColor,
-  color: Nodes.Color,
-  math: Nodes.Math,
-  time: Nodes.Time,
-  trigno: Nodes.Trigno,
-  split: Nodes.Split,
-  combine: Nodes.Combine,
-  number: Nodes.Number,
-};
+const nodeTypes = Object.keys(Nodes).reduce(
+  (acc, key) => {
+    acc[key] = Nodes[key].comp;
+    return acc;
+  },
+  {} as { [key: string]: React.FC<NodeProps> },
+);
 
 const compiler = new NodeCompiler();
 
